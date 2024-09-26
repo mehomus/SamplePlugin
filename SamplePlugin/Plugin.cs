@@ -16,8 +16,20 @@ using System.Text.RegularExpressions;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SamplePlugin;
+public class SimplePlayer
+{
+    public string Name { get; private set; }
+    public string World { get; private set; }
+
+    public SimplePlayer(string name, string world)
+    {
+        Name = name;
+        World = world;
+    }
+}
 
 public sealed class Plugin : IDalamudPlugin
 {
@@ -35,27 +47,49 @@ public sealed class Plugin : IDalamudPlugin
 
     public Plugin()
     {
+        //make dict
+        Dictionary<int, string> worldDict = new Dictionary<int, string>();
+        worldDict.Add(402, "Alpha");
+        worldDict.Add(36, "Lich");
+        worldDict.Add(66, "Odin");
+        worldDict.Add(56, "Phoenix");
+        worldDict.Add(403, "Raiden");
+        worldDict.Add(67, "Shiva");
+        worldDict.Add(33, "Twintania");
+        worldDict.Add(42, "Zodiark");
+        worldDict.Add(80, "Cerberus");
+        worldDict.Add(83, "Louisoix");
+        worldDict.Add(71, "Moogle");
+        worldDict.Add(39, "Omega");
+        worldDict.Add(401, "Phantom");
+        worldDict.Add(97, "Ragnarok");
+        worldDict.Add(400, "Sagittarius");
+        worldDict.Add(85, "Spriggan");
+
+
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
         // you might normally want to embed resources and load them from the manifest stream
         var pagManImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "PagMan.png");
         var sadgeImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "sadge.png");
         string playerName;
-        string[] partyList;
+        var playerList = new List<SimplePlayer>();
         unsafe
         {
             playerName = PlayerState.Instance()->CharacterNameString;
-            List<string> list = new List<string>();
-            for (int i = 1; i < InfoProxyPartyMember.Instance()->EntryCount; i++)
+           
+            for (int i = 0; i < InfoProxyPartyMember.Instance()->EntryCount; i++)
             {
-                list.Add(InfoProxyPartyMember.Instance()->CharDataSpan[i].NameString);
+                var name = InfoProxyPartyMember.Instance()->CharDataSpan[i].NameString;
+                var world = worldDict[InfoProxyPartyMember.Instance()->CharDataSpan[i].HomeWorld];
+                playerList.Add(new SimplePlayer(name, world));
+                
             }
-            partyList = list.ToArray();
         }
 
 
         ConfigWindow = new ConfigWindow(this);
-        MainWindow = new MainWindow(this, pagManImagePath, sadgeImagePath, playerName, partyList);
+        MainWindow = new MainWindow(this, pagManImagePath, sadgeImagePath, playerName, playerList);
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);

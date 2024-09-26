@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
@@ -16,14 +17,14 @@ public class MainWindow : Window, IDisposable
     private string PagManImagePath;
     private string SadgeImagePath;
     private string PlayerName;
-    private string[] PartyList;
+    private List<SimplePlayer> PartyList;
     private Plugin Plugin;
 
 
     // We give this window a hidden ID using ##
     // So that the user will see "My Amazing Window" as window title,
     // but for ImGui the ID is "My Amazing Window##With a hidden ID"
-    public MainWindow(Plugin plugin, string pagmanImagePath, string sadgeImagePath, string playerName, string[] partyList)
+    public MainWindow(Plugin plugin, string pagmanImagePath, string sadgeImagePath, string playerName, List<SimplePlayer> partyList)
         : base("Proggers##With a hidden ID", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         SizeConstraints = new WindowSizeConstraints
@@ -54,11 +55,12 @@ public class MainWindow : Window, IDisposable
     {
 
         ImGui.Text($"I am: {PlayerName}");
+        ImGui.Text($"partylength: {PartyList.Count}");
         foreach (var member in PartyList) {
-            ImGui.Text($"Party member: {member}");
+            ImGui.Text($"Party member: {member.Name} World: {member.World}");
         }
 
-        ImGui.Text(isPog()?"Man, we're POGGING": "Man, we are NOT pogging");
+        ImGui.Text(isPog()?"Man, we're POGGING2": "Man, we are NOT pogging");
         
 
         ImGui.Spacing();
